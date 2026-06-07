@@ -3,9 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photography Portfolio</title>
+    <title>Continuous Photo Wheel</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap');
+
+        :root {
+            --photo-height: 60vh;
+            --gap: 150px;
+            --total-item-height: calc(var(--photo-height) + var(--gap));
+            --scroll-speed: 50s; /* 5 seconds per image x 10 images */
+        }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -22,133 +29,102 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
             z-index: 9999;
-            transition: opacity 1s ease, visibility 1s;
+            transition: opacity 1s ease;
         }
-        #loader.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-        .loader-text {
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-        }
-        .progress-container {
-            width: 200px;
-            height: 2px;
-            background: rgba(255,255,255,0.1);
-            position: relative;
-        }
-        #progress-bar {
-            position: absolute;
-            height: 100%;
-            background: #fff;
-            width: 0%;
-            transition: width 0.3s;
-        }
-        #percent-text {
-            margin-top: 10px;
-            font-size: 0.7rem;
-            letter-spacing: 3px;
-            opacity: 0.5;
-        }
+        .loader-text { font-family: 'Playfair Display', serif; font-size: 2rem; letter-spacing: 5px; margin-bottom: 20px; }
+        .bar-container { width: 150px; height: 1px; background: rgba(255,255,255,0.1); }
+        #progress-bar { height: 100%; background: #fff; width: 0%; transition: width 0.4s; }
 
-        /* --- BACKGROUND & GRADIENT --- */
-        #bg-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -2;
-        }
+        /* --- BACKGROUND LAYERS --- */
+        #bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; }
         .bg-layer {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover;
-            background-position: center;
-            transition: opacity 1.5s ease-in-out;
-            opacity: 0;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            transition: opacity 2s ease-in-out; opacity: 0;
         }
         .bg-layer.active { opacity: 0.5; }
 
+        /* --- GRADIENT (Bottom-Left Black) --- */
         .gradient-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             background: linear-gradient(45deg, 
                 rgba(0,0,0,1) 0%, 
-                rgba(0,0,0,0.9) 25%, 
+                rgba(0,0,0,0.8) 30%, 
                 rgba(0,0,0,0) 70%);
             pointer-events: none;
         }
 
         /* --- HEADER & FOOTER --- */
         header {
-            position: fixed;
-            top: 0; width: 100%; padding: 30px 60px;
+            position: fixed; top: 0; width: 100%; padding: 40px 60px;
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 100; background: rgba(0,0,0,0.2); backdrop-filter: blur(10px);
+            z-index: 100;
         }
-        .logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; }
-        nav ul { display: flex; list-style: none; gap: 40px; }
-        nav a { color: #fff; text-decoration: none; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; }
-
+        .logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; letter-spacing: 2px; }
         footer {
-            position: fixed;
-            bottom: 0; width: 100%; padding: 20px 60px;
+            position: fixed; bottom: 0; width: 100%; padding: 30px 60px;
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 100; font-size: 0.7rem; letter-spacing: 1px;
-            color: rgba(255,255,255,0.5);
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            z-index: 100; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;
         }
 
-        /* --- CONTENT --- */
-        .main-container {
-            display: grid; grid-template-columns: 1fr 1fr;
-            height: 100vh; padding: 0 80px; align-items: center;
+        /* --- LAYOUT --- */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            height: 100vh;
+            padding: 0 60px;
+            align-items: center;
         }
-        .text-side { z-index: 10; }
-        .text-side h2 { font-size: 0.9rem; color: #ff3e3e; letter-spacing: 5px; margin-bottom: 20px; }
-        .text-side h1 { font-family: 'Playfair Display', serif; font-size: 4.5rem; line-height: 1.1; margin-bottom: 30px; }
-        .text-side p { max-width: 400px; line-height: 1.8; color: #bbb; }
 
-        .scroller-side {
-            height: 100vh; display: flex; justify-content: flex-end; align-items: center; overflow: hidden;
+        /* Steady Text */
+        .steady-text { z-index: 10; max-width: 500px; }
+        .steady-text h1 { font-family: 'Playfair Display', serif; font-size: 4rem; line-height: 1.1; margin-bottom: 20px; }
+        .steady-text p { font-size: 1rem; line-height: 1.8; color: #aaa; }
+
+        /* CONTINUOUS WHEEL SCROLLER */
+        .scroller-window {
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
         #photo-track {
-            display: flex; flex-direction: column; gap: 150px;
-            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap);
+            animation: scrollWheel var(--scroll-speed) linear infinite;
         }
+
         .photo-item {
-            height: 65vh; width: auto; border-radius: 4px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.9); object-fit: cover;
+            height: var(--photo-height);
+            width: auto;
+            border-radius: 4px;
+            object-fit: cover;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        @keyframes scrollWheel {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(calc(-10 * var(--total-item-height))); }
         }
     </style>
 </head>
 <body>
 
-    <!-- Loading Screen -->
     <div id="loader">
-        <div class="loader-text">LUMINA</div>
-        <div class="progress-container">
-            <div id="progress-bar"></div>
-        </div>
-        <div id="percent-text">0%</div>
+        <div class="loader-text">LOADING</div>
+        <div class="bar-container"><div id="progress-bar"></div></div>
     </div>
 
     <header>
-        <div class="logo">LUMINA.</div>
-        <nav>
-            <ul>
-                <li><a href="#">Gallery</a></li>
-                <li><a href="#">Exhibitions</a></li>
-                <li><a href="#">Contact</a></li>
-            </ul>
-        </nav>
+        <div class="logo">JOURNAL.</div>
+        <div style="font-size: 0.7rem; letter-spacing: 3px;">MENU</div>
     </header>
 
     <div id="bg-container">
@@ -158,99 +134,88 @@
 
     <div class="gradient-overlay"></div>
 
-    <div class="main-container">
-        <div class="text-side">
-            <h2 id="counter">Collection 01</h2>
-            <h1 id="title">Ethereal<br>Landscapes</h1>
-            <p id="desc">Capturing the silent whispers of nature in its purest form. A journey through light, shadow, and time.</p>
+    <div class="main-content">
+        <div class="steady-text">
+            <h1>The Eternal<br>Collection</h1>
+            <p>A continuous loop of visual storytelling. This collection remains steady while the world moves around it, capturing moments that never truly end.</p>
         </div>
-        <div class="scroller-side">
-            <div id="photo-track"></div>
+
+        <div class="scroller-window">
+            <div id="photo-track">
+                <!-- Images will be duplicated for seamless loop -->
+            </div>
         </div>
     </div>
 
     <footer>
-        <div style="display:flex; gap:20px;">
-            <span>Instagram</span><span>Behance</span>
-        </div>
-        <div>&copy; 2024 LUMINA PHOTOGRAPHY</div>
+        <div>EST. 2024</div>
+        <div>SCROLLING CONTINUOUSLY</div>
     </footer>
 
     <script>
-        const gallery = [
-            { url: "https://picsum.photos/id/10/1600/1000", title: "Mount<br>Echo", count: "Collection 01" },
-            { url: "https://picsum.photos/id/20/1600/1000", title: "Urban<br>Solace", count: "Collection 02" },
-            { url: "https://picsum.photos/id/30/1600/1000", title: "Nature's<br>Veil", count: "Collection 03" },
-            { url: "https://picsum.photos/id/40/1600/1000", title: "Wild<br>Hearts", count: "Collection 04" },
-            { url: "https://picsum.photos/id/50/1600/1000", title: "Silent<br>Peaks", count: "Collection 05" },
-            { url: "https://picsum.photos/id/60/1600/1000", title: "Old<br>Woods", count: "Collection 06" },
-            { url: "https://picsum.photos/id/70/1600/1000", title: "City<br>Lights", count: "Collection 07" },
-            { url: "https://picsum.photos/id/80/1600/1000", title: "Deep<br>Blue", count: "Collection 08" },
-            { url: "https://picsum.photos/id/90/1600/1000", title: "Golden<br>Fields", count: "Collection 09" },
-            { url: "https://picsum.photos/id/100/1600/1000", title: "Lost<br>Horizon", count: "Collection 10" }
+        const images = [
+            "https://picsum.photos/id/10/1200/1600",
+            "https://picsum.photos/id/20/1200/1600",
+            "https://picsum.photos/id/30/1200/1600",
+            "https://picsum.photos/id/40/1200/1600",
+            "https://picsum.photos/id/50/1200/1600",
+            "https://picsum.photos/id/61/1200/1600",
+            "https://picsum.photos/id/62/1200/1600",
+            "https://picsum.photos/id/63/1200/1600",
+            "https://picsum.photos/id/64/1200/1600",
+            "https://picsum.photos/id/65/1200/1600"
         ];
 
         const track = document.getElementById('photo-track');
         const bg1 = document.getElementById('bg1');
         const bg2 = document.getElementById('bg2');
-        const titleEl = document.getElementById('title');
-        const countEl = document.getElementById('counter');
-        const loader = document.getElementById('loader');
         const pBar = document.getElementById('progress-bar');
-        const pText = document.getElementById('percent-text');
-
-        let currentIndex = 0;
-        let activeBg = bg1;
+        
         let loadedCount = 0;
+        let bgIndex = 0;
+        let activeBg = bg1;
 
-        // 1. PRELOAD IMAGES
-        gallery.forEach((item, index) => {
-            const img = new Image();
-            img.src = item.url;
-            
-            // Add to scroller
-            const scrollImg = document.createElement('img');
-            scrollImg.src = item.url;
-            scrollImg.className = 'photo-item';
-            track.appendChild(scrollImg);
+        // Create the wheel (Original + Clone for seamless loop)
+        function initGallery() {
+            // Add original 10
+            images.forEach(src => createImg(src));
+            // Add clone of 10 to create infinite effect
+            images.forEach(src => createImg(src));
 
-            img.onload = () => {
-                loadedCount++;
-                let percentage = Math.floor((loadedCount / gallery.length) * 100);
-                pBar.style.width = percentage + '%';
-                pText.innerText = percentage + '%';
-
-                if (loadedCount === gallery.length) {
-                    setTimeout(startGallery, 500);
-                }
-            };
-        });
-
-        function startGallery() {
-            loader.classList.add('hidden');
-            update();
-            setInterval(update, 5000);
+            // Start background cycling
+            cycleBackground();
+            setInterval(cycleBackground, 5000);
         }
 
-        function update() {
-            const photos = document.querySelectorAll('.photo-item');
-            const h = photos[0].offsetHeight;
-            const gap = 150;
+        function createImg(src) {
+            const img = new Image();
+            img.src = src;
+            img.className = 'photo-item';
+            track.appendChild(img);
+            img.onload = () => {
+                loadedCount++;
+                pBar.style.width = (loadedCount / (images.length * 2)) * 100 + "%";
+                if (loadedCount === images.length * 2) {
+                    setTimeout(() => {
+                        document.getElementById('loader').style.opacity = '0';
+                        setTimeout(() => document.getElementById('loader').remove(), 1000);
+                    }, 500);
+                }
+            };
+        }
 
-            track.style.transform = `translateY(-${currentIndex * (h + gap)}px)`;
-
+        function cycleBackground() {
             const nextBg = (activeBg === bg1) ? bg2 : bg1;
-            nextBg.style.backgroundImage = `url('${gallery[currentIndex].url}')`;
+            nextBg.style.backgroundImage = `url('${images[bgIndex]}')`;
             
             activeBg.classList.remove('active');
             nextBg.classList.add('active');
             activeBg = nextBg;
 
-            titleEl.innerHTML = gallery[currentIndex].title;
-            countEl.innerText = gallery[currentIndex].count;
-
-            currentIndex = (currentIndex + 1) % gallery.length;
+            bgIndex = (bgIndex + 1) % images.length;
         }
+
+        initGallery();
     </script>
 </body>
 </html>
