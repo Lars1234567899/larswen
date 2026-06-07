@@ -1,45 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Larswen</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Photo Scroller</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+    <!-- Background layers for smooth cross-fading -->
+    <div id="background-container">
+        <div class="bg-layer" id="bg1"></div>
+        <div class="bg-layer" id="bg2"></div>
+    </div>
 
-    <h1>Larence Owen</h1>
+    <!-- Gradient overlay: solid black bottom-left to clear -->
+    <div class="gradient-overlay"></div>
 
-    <p>
-        Developer • Builder • Lifelong Learner
-    </p>
+    <!-- Scrolling photo container -->
+    <div id="scroller-viewport">
+        <div id="photo-track">
+            <!-- Photos will be injected by JavaScript or manually listed -->
+        </div>
+    </div>
 
-    <hr>
-
-    <h2>About Me</h2>
-
-    <p>
-        Hi, I'm Larence.
-        Welcome to my corner of the internet.
-    </p>
-
-    <p>
-        This website is where I share my story,
-        projects, and things I'm learning.
-    </p>
-
-    <h2>Projects</h2>
-
-    <ul>
-        <li>Personal Website</li>
-        <li>Future Project #1</li>
-        <li>Future Project #2</li>
-    </ul>
-
-    <h2>Contact</h2>
-
-    <p>
-        GitHub:
-        https://github.com/Lars1234567899
-    </p>
-
+    <script src="script.js"></script>
 </body>
 </html>
