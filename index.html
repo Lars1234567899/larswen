@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visual Journey | Portfolio</title>
+    <title>Photography Portfolio</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap');
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -17,7 +17,7 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* 1. BACKGROUND SYSTEM */
+        /* 1. BACKGROUND LAYERS */
         #bg-container {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -28,133 +28,112 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background-size: cover;
             background-position: center;
-            transition: opacity 1.5s ease-in-out, transform 5s ease-out;
+            transition: opacity 1.5s ease-in-out;
             opacity: 0;
-            transform: scale(1.1);
         }
-        .bg-layer.active {
-            opacity: 0.6; /* Reveal 60% of the image as requested */
-            transform: scale(1);
-        }
+        .bg-layer.active { opacity: 0.5; } /* 50% Reveal as requested */
 
-        /* 2. THE GRADIENT (Solid black bottom-left) */
+        /* 2. GRADIENT OVERLAY (Solid Black Bottom-Left) */
         .gradient-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            /* Stronger black from bottom-left corner */
-            background: radial-gradient(circle at bottom left, 
+            background: linear-gradient(45deg, 
                 rgba(0,0,0,1) 0%, 
-                rgba(0,0,0,0.9) 20%, 
-                rgba(0,0,0,0.5) 50%, 
-                rgba(0,0,0,0) 80%);
+                rgba(0,0,0,0.9) 25%, 
+                rgba(0,0,0,0) 70%);
             pointer-events: none;
         }
 
-        /* 3. NAVIGATION & UI */
-        nav {
+        /* 3. HEADER */
+        header {
             position: fixed;
-            top: 0; width: 100%;
-            padding: 40px 60px;
+            top: 0;
+            width: 100%;
+            padding: 30px 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
         }
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            letter-spacing: 2px;
-            font-weight: 700;
+        .logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; letter-spacing: 1px; }
+        nav ul { display: flex; list-style: none; gap: 40px; }
+        nav a { color: #fff; text-decoration: none; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; transition: 0.3s; }
+        nav a:hover { opacity: 1; }
+
+        /* 4. FOOTER */
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: 20px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
         }
-        .menu-items { display: flex; gap: 30px; list-style: none; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; }
-        
-        /* 4. MAIN CONTENT AREA */
-        .content-wrapper {
+        .socials { display: flex; gap: 20px; }
+
+        /* 5. CONTENT LAYOUT */
+        .main-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             height: 100vh;
-            padding: 0 60px;
-            align-items: flex-end;
-            padding-bottom: 80px;
+            padding: 0 80px;
+            align-items: center;
         }
 
-        /* Text in the bottom-left (Black Area) */
-        .text-area {
+        .text-side {
             z-index: 10;
-            max-width: 500px;
+            padding-top: 100px; /* Offset for header */
         }
-        .counter {
-            font-size: 1rem;
-            color: #888;
-            margin-bottom: 20px;
-            display: block;
-        }
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 5rem;
-            line-height: 1;
-            margin-bottom: 20px;
-        }
-        p {
-            font-size: 1rem;
-            line-height: 1.8;
-            color: #ccc;
-            margin-bottom: 30px;
-        }
+        .text-side h2 { font-size: 0.9rem; color: #ff3e3e; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 20px; }
+        .text-side h1 { font-family: 'Playfair Display', serif; font-size: 4.5rem; line-height: 1.1; margin-bottom: 30px; }
+        .text-side p { max-width: 400px; line-height: 1.8; color: #bbb; margin-bottom: 40px; }
 
-        /* 5. THE SCROLLER (Right side) */
-        .scroller-container {
+        /* 6. PHOTO SCROLLER */
+        .scroller-side {
             height: 100vh;
             display: flex;
-            justify-content: center;
+            justify-content: flex-end;
             align-items: center;
-            position: relative;
+            overflow: hidden;
         }
         #photo-track {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 150px; /* 150px gap between each */
-            transition: transform 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+            gap: 150px; /* 150px Gap between photos */
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .photo-item {
-            height: 70vh;
+            height: 65vh;
             width: auto;
-            max-width: 90%;
             border-radius: 4px;
-            box-shadow: 0 50px 100px rgba(0,0,0,0.8);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.9);
             object-fit: cover;
-            /* Optional: make inactive photos slightly dimmer */
-            filter: brightness(0.5);
-            transition: filter 1s;
-        }
-        .photo-item.active-focus {
-            filter: brightness(1);
-        }
-
-        /* Footer Decor */
-        .footer-info {
-            position: fixed;
-            bottom: 40px;
-            right: 60px;
-            font-size: 0.7rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: #666;
         }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="logo">STUDIO.RAW</div>
-        <ul class="menu-items">
-            <li>Work</li>
-            <li>About</li>
-            <li>Contact</li>
-        </ul>
-    </nav>
+    <header>
+        <div class="logo">LUMINA.</div>
+        <nav>
+            <ul>
+                <li><a href="#">Gallery</a></li>
+                <li><a href="#">Exhibitions</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
 
     <div id="bg-container">
         <div class="bg-layer" id="bg1"></div>
@@ -163,48 +142,54 @@
 
     <div class="gradient-overlay"></div>
 
-    <div class="content-wrapper">
-        <div class="text-area">
-            <span class="counter" id="photo-number">01 / 10</span>
-            <h1 id="main-title">Modern<br>Architecture</h1>
-            <p id="main-desc">A deep dive into the structural beauty of our world, captured through a lens that values symmetry and light.</p>
+    <div class="main-container">
+        <div class="text-side">
+            <h2 id="counter">Collection 01</h2>
+            <h1 id="title">Ethereal<br>Landscapes</h1>
+            <p id="desc">Capturing the silent whispers of nature in its purest form. A journey through light, shadow, and time.</p>
         </div>
 
-        <div class="scroller-container">
+        <div class="scroller-side">
             <div id="photo-track">
-                <!-- Images injected via JS -->
+                <!-- Images will be injected here -->
             </div>
         </div>
     </div>
 
-    <div class="footer-info">Scroll to Explore — 2024</div>
+    <footer>
+        <div class="socials">
+            <span>Instagram</span>
+            <span>Behance</span>
+            <span>Twitter</span>
+        </div>
+        <div>&copy; 2024 LUMINA PHOTOGRAPHY STUDIO</div>
+    </footer>
 
     <script>
-        const data = [
-            { url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80", title: "The Peaks", desc: "Silent giants standing against the passage of time." },
-            { url: "https://images.unsplash.com/photo-1449156001437-37c6476cf50b?auto=format&fit=crop&w=1200&q=80", title: "Urban Flow", desc: "The rhythmic pulse of the city captured in motion." },
-            { url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80", title: "Mist & Fog", desc: "Where the earth meets the sky in a soft embrace." },
-            { url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80", title: "Deep Forest", desc: "Finding sunlight in the densest parts of the woods." },
-            { url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80", title: "Azure Lake", desc: "Still waters reflecting the purity of the mountains." },
-            { url: "https://images.unsplash.com/photo-1506744038736-8339886a199d?auto=format&fit=crop&w=1200&q=80", title: "Red Canyon", desc: "Layers of history carved into the desert floor." },
-            { url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80", title: "Open Plains", desc: "Endless horizons where the wind tells its stories." },
-            { url: "https://images.unsplash.com/photo-1532274402831-5829851df68b?auto=format&fit=crop&w=1200&q=80", title: "Golden Hour", desc: "The fleeting moment when everything turns to gold." },
-            { url: "https://images.unsplash.com/photo-1433086566280-608bf20b9a47?auto=format&fit=crop&w=1200&q=80", title: "Tidal Falls", desc: "Water rushing over stones in a perpetual dance." },
-            { url: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1200&q=80", title: "Lone Tree", desc: "A symbol of resilience in the middle of a vast field." }
+        const gallery = [
+            { url: "https://picsum.photos/id/10/1200/800", title: "Mount<br>Echo", count: "Collection 01" },
+            { url: "https://picsum.photos/id/20/1200/800", title: "Urban<br>Solace", count: "Collection 02" },
+            { url: "https://picsum.photos/id/30/1200/800", title: "Nature's<br>Veil", count: "Collection 03" },
+            { url: "https://picsum.photos/id/40/1200/800", title: "Wild<br>Hearts", count: "Collection 04" },
+            { url: "https://picsum.photos/id/50/1200/800", title: "Silent<br>Peaks", count: "Collection 05" },
+            { url: "https://picsum.photos/id/60/1200/800", title: "Old<br>Woods", count: "Collection 06" },
+            { url: "https://picsum.photos/id/70/1200/800", title: "City<br>Lights", count: "Collection 07" },
+            { url: "https://picsum.photos/id/80/1200/800", title: "Deep<br>Blue", count: "Collection 08" },
+            { url: "https://picsum.photos/id/90/1200/800", title: "Golden<br>Fields", count: "Collection 09" },
+            { url: "https://picsum.photos/id/100/1200/800", title: "Lost<br>Horizon", count: "Collection 10" }
         ];
 
         const track = document.getElementById('photo-track');
         const bg1 = document.getElementById('bg1');
         const bg2 = document.getElementById('bg2');
-        const titleEl = document.getElementById('main-title');
-        const descEl = document.getElementById('main-desc');
-        const countEl = document.getElementById('photo-number');
+        const titleEl = document.getElementById('title');
+        const countEl = document.getElementById('counter');
 
         let currentIndex = 0;
         let activeBg = bg1;
 
-        // Build Scroller
-        data.forEach((item, index) => {
+        // Load Images
+        gallery.forEach(item => {
             const img = document.createElement('img');
             img.src = item.url;
             img.className = 'photo-item';
@@ -216,44 +201,29 @@
             const h = photos[0].offsetHeight;
             const gap = 150;
 
-            // 1. Scroll Position
-            const offset = currentIndex * (h + gap);
-            track.style.transform = `translateY(-${offset}px)`;
-
-            // Highlight current photo
-            photos.forEach(p => p.classList.remove('active-focus'));
-            photos[currentIndex].classList.add('active-focus');
+            // 1. Vertical Scroll
+            const move = currentIndex * (h + gap);
+            track.style.transform = `translateY(-${move}px)`;
 
             // 2. Background Cross-fade
             const nextBg = (activeBg === bg1) ? bg2 : bg1;
-            nextBg.style.backgroundImage = `url('${data[currentIndex].url}')`;
+            nextBg.style.backgroundImage = `url('${gallery[currentIndex].url}')`;
             
             activeBg.classList.remove('active');
             nextBg.classList.add('active');
             activeBg = nextBg;
 
-            // 3. Text & Counter Update
-            titleEl.style.opacity = 0;
-            descEl.style.opacity = 0;
-            
-            setTimeout(() => {
-                titleEl.innerHTML = data[currentIndex].title.replace(" ", "<br>");
-                descEl.innerText = data[currentIndex].desc;
-                countEl.innerText = `${(currentIndex + 1).toString().padStart(2, '0')} / 10`;
-                titleEl.style.opacity = 1;
-                descEl.style.opacity = 1;
-            }, 500);
+            // 3. Sync Text
+            titleEl.innerHTML = gallery[currentIndex].title;
+            countEl.innerText = gallery[currentIndex].count;
 
-            currentIndex = (currentIndex + 1) % data.length;
+            currentIndex = (currentIndex + 1) % gallery.length;
         }
 
-        // Initial launch
-        window.addEventListener('load', () => {
-            titleEl.style.transition = "opacity 0.8s";
-            descEl.style.transition = "opacity 0.8s";
+        window.onload = () => {
             update();
-            setInterval(update, 5000); // 5 Seconds cycle
-        });
+            setInterval(update, 5000);
+        };
     </script>
 </body>
 </html>
